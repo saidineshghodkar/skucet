@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKUCET College Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style type="text/tailwindcss">
+        @layer base {
+            html { font-family: 'Inter', sans-serif; }
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #60a5fa; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+        .mobile-menu { transform: translateX(-100%); transition: transform 0.3s ease-in-out; }
+        .mobile-menu.open { transform: translateX(0); }
+    
+
+        /* ADDED: Dark Theme Variables */
+        :root {
+            --theme-bg-primary: #f8fafc;
+            --theme-bg-secondary: #ffffff;
+            --theme-text-primary: #1e293b;
+            --theme-text-secondary: #64748b;
+            --theme-border: #e2e8f0;
+            --theme-accent: #3b82f6;
+        }
+
+        [data-theme="dark"] {
+            --theme-bg-primary: #0f172a;
+            --theme-bg-secondary: #1e293b;
+            --theme-text-primary: #f1f5f9;
+            --theme-text-secondary: #cbd5e1;
+            --theme-border: #334155;
+            --theme-accent: #60a5fa;
+        }
+
+        body { transition: all 0.3s ease; }
+        [data-theme="dark"] body { background-color: var(--theme-bg-primary); color: var(--theme-text-primary); }
+        [data-theme="dark"] .bg-white { background-color: var(--theme-bg-secondary) !important; }
+        [data-theme="dark"] .bg-gray-100 { background-color: var(--theme-bg-primary) !important; }
+        [data-theme="dark"] .text-gray-900 { color: var(--theme-text-primary) !important; }
+        [data-theme="dark"] .text-gray-600 { color: var(--theme-text-secondary) !important; }
+        [data-theme="dark"] .border-gray-300 { border-color: var(--theme-border) !important; }
+
+        /* ADDED: Theme Toggle Button */
+        .theme-toggle-btn {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--theme-bg-secondary, #ffffff);
+            border: 2px solid var(--theme-border, #e2e8f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .theme-toggle-btn:hover { transform: scale(1.1); }
+
+        /* ADDED: Chatbot Styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 999;
+        }
+
+        .chatbot-toggle {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-toggle:hover { transform: scale(1.05); }
+
+        .chatbot-window {
+            position: absolute;
+            bottom: 5rem;
+            right: 0;
+            width: 380px;
+            height: 580px;
+            background: var(--theme-bg-secondary, #ffffff);
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            display: none;
+            flex-direction: column;
+            border: 1px solid var(--theme-border, #e2e8f0);
+            overflow: hidden;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: var(--theme-bg-primary, #f8fafc);
+        }
+
+        .chatbot-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--theme-border, #e2e8f0);
+            background: var(--theme-bg-secondary, #ffffff);
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.user .message-content {
+            background: var(--theme-accent, #3b82f6);
+            color: white;
+        }
+
+        .message.bot {
+            align-items: flex-start;
+        }
+
+        .message.bot .message-content {
+            background: var(--theme-border, #e2e8f0);
+            color: var(--theme-text-primary, #1e293b);
+        }
+
+        /* ADDED: File Upload Styles */
+        .file-upload-area {
+            border: 2px dashed var(--theme-border, #e2e8f0);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover, .file-upload-area.dragover {
+            border-color: var(--theme-accent, #3b82f6);
+            background: var(--theme-bg-secondary, #ffffff);
+        }
+
+        .file-preview {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background: var(--theme-bg-secondary, #ffffff);
+            border: 1px solid var(--theme-border, #e2e8f0);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ADDED: Mobile Responsive */
+        @media (max-width: 768px) {
+            .chatbot-window {
+                width: calc(100vw - 2rem);
+                height: 70vh;
+                right: -0.5rem;
+                bottom: 4.5rem;
+            }
+
+            .theme-toggle-btn {
+                top: 0.75rem;
+                right: 0.75rem;
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+        }
+
+        /* COMPREHENSIVE DARK THEME TEXT VISIBILITY FIXES */
+        [data-theme="dark"] {
+            color: #f1f5f9 !important;
+        }
+
+        /* Global text color fixes */
+        [data-theme="dark"] *,
+        [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
+        [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
+        [data-theme="dark"] p, [data-theme="dark"] span, [data-theme="dark"] div,
+        [data-theme="dark"] a, [data-theme="dark"] label, [data-theme="dark"] li,
+        [data-theme="dark"] td, [data-theme="dark"] th, [data-theme="dark"] button {
+            color: #f1f5f9 !important;
+        }
+
+        /* Specific text color classes */
+        [data-theme="dark"] .text-gray-900 { color: #f1f5f9 !important; }
+        [data-theme="dark"] .text-gray-800 { color: #f1f5f9 !important; }
+        [data-theme="dark"] .text-gray-700 { color: #cbd5e1 !important; }
+        [data-theme="dark"] .text-gray-600 { color: #cbd5e1 !important; }
+        [data-theme="dark"] .text-gray-500 { color: #94a3b8 !important; }
+        [data-theme="dark"] .text-gray-400 { color: #94a3b8 !important; }
+        [data-theme="dark"] .text-gray-300 { color: #94a3b8 !important; }
+
+        /* Background fixes */
+        [data-theme="dark"] body { background-color: #0f172a !important; }
+        [data-theme="dark"] .bg-white { background-color: #1e293b !important; }
+        [data-theme="dark"] .bg-gray-50 { background-color: #334155 !important; }
+        [data-theme="dark"] .bg-gray-100 { background-color: #0f172a !important; }
+        [data-theme="dark"] .bg-gray-200 { background-color: #334155 !important; }
+
+        /* Form elements */
+        [data-theme="dark"] input,
+        [data-theme="dark"] select,
+        [data-theme="dark"] textarea {
+            background-color: #334155 !important;
+            color: #f1f5f9 !important;
+            border-color: #475569 !important;
+        }
+
+        [data-theme="dark"] input::placeholder,
+        [data-theme="dark"] textarea::placeholder {
+            color: #94a3b8 !important;
+        }
+
+        /* Border fixes */
+        [data-theme="dark"] .border-gray-200 { border-color: #475569 !important; }
+        [data-theme="dark"] .border-gray-300 { border-color: #475569 !important; }
+
+        /* Card and shadow fixes */
+        [data-theme="dark"] .shadow-md,
+        [data-theme="dark"] .shadow-lg,
+        [data-theme="dark"] .shadow-xl {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* Modal and overlay fixes */
+        [data-theme="dark"] .modal-content {
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+        }
+
+        /* Chatbot specific fixes */
+        [data-theme="dark"] .chatbot-window {
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-theme="dark"] .chatbot-messages {
+            background-color: #0f172a !important;
+        }
+
+        [data-theme="dark"] .message-content {
+            color: #f1f5f9 !important;
+        }
+
+        [data-theme="dark"] .message.bot .message-content {
+            background-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+
+        /* Table fixes */
+        [data-theme="dark"] table,
+        [data-theme="dark"] thead,
+        [data-theme="dark"] tbody,
+        [data-theme="dark"] tr,
+        [data-theme="dark"] td,
+        [data-theme="dark"] th {
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+            border-color: #475569 !important;
+        }
+
+        /* Navigation and menu fixes */
+        [data-theme="dark"] nav,
+        [data-theme="dark"] .nav-link {
+            color: #f1f5f9 !important;
+        }
+
+        /* Button text fixes */
+        [data-theme="dark"] button:not(.bg-blue-600):not(.bg-green-600):not(.bg-red-600) {
+            color: #f1f5f9 !important;
+        }
+
+        /* Ensure all nested elements inherit proper colors */
+        [data-theme="dark"] .bg-white *,
+        [data-theme="dark"] .bg-gray-100 * {
+            color: inherit !important;
+        }</style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- ADDED: Theme Toggle Button -->
+    <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle" title="Toggle Theme">
+        <i class="fas fa-sun" id="sun-icon"></i>
+        <i class="fas fa-moon hidden" id="moon-icon"></i>
+    </button>
+
+    <!-- ADDED: Forgot Password Modal -->
+    <div id="forgot-password-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4" style="background: var(--theme-bg-secondary, #ffffff);">
+            <div class="text-center mb-6">
+                <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-key text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-2" style="color: var(--theme-text-primary, #1e293b);">Reset Password</h3>
+                <p style="color: var(--theme-text-secondary, #64748b);">Enter your email to receive reset instructions</p>
+            </div>
+            <form id="forgot-password-form" onsubmit="handleForgotPassword(event)">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" style="color: var(--theme-text-primary, #1e293b);">Email Address</label>
+                    <input type="email" id="reset-email" required 
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                           style="background: var(--theme-bg-secondary, #ffffff); border-color: var(--theme-border, #e2e8f0); color: var(--theme-text-primary, #1e293b);"
+                           placeholder="Enter your registered email">
+                </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="hideForgotPassword()" 
+                            class="flex-1 px-6 py-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                            style="border-color: var(--theme-border, #e2e8f0); color: var(--theme-text-primary, #1e293b);">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Send Reset Link
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alert Modal -->
+    <div id="alert-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-[100]">
+        <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm text-center mx-4">
+            <h3 class="text-xl font-bold mb-2 text-red-600" id="alert-title"></h3>
+            <p class="text-gray-700 mb-4" id="alert-message"></p>
+            <button onclick="hideAlert()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Close</button>
+        </div>
+    </div>
+
+    <!-- Login Section -->
+    <section id="login-section" class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-md md:max-w-4xl flex flex-col md:flex-row">
+            <!-- Visual Branding -->
+            <div class="p-8 bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex flex-col justify-center items-center text-center md:w-1/2">
+                <i class="fas fa-graduation-cap text-4xl md:text-6xl mb-4"></i>
+                <h1 class="text-2xl md:text-4xl font-bold mb-2">SKUCET Portal</h1>
+                <p class="text-sm md:text-lg opacity-80">Your all-in-one hub for academic management.</p>
+            </div>
+            <!-- Login Forms -->
+            <div class="p-6 md:p-8 flex flex-col justify-center items-center md:w-1/2">
+                <div class="w-full max-w-md">
+                    <h2 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Welcome Back!</h2>
+                    <div class="flex mb-6 text-center">
+                        <button id="student-tab" class="flex-1 px-3 py-2 md:px-4 md:py-3 rounded-t-lg font-semibold text-sm md:text-lg border-b-2 border-blue-500 text-blue-500">Student</button>
+                        <button id="teacher-tab" class="flex-1 px-3 py-2 md:px-4 md:py-3 rounded-t-lg font-semibold text-sm md:text-lg text-gray-400 border-b-2 border-transparent hover:text-blue-500">Teacher/Admin</button>
+                    </div>
+                    <!-- Student Login -->
+                    <form id="student-login-form" class="space-y-4 md:space-y-6">
+                        <div>
+                            <label for="student-roll-no" class="block text-sm font-medium text-gray-700">Roll Number</label>
+                            <input type="text" id="student-roll-no" required class="mt-1 block w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="2410220">
+                        </div>
+                        <div>
+                            <label for="student-password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="student-password" required class="mt-1 block w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="pass">
+                        </div>
+                                                <div class="flex items-center justify-between mb-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                            </label>
+                            <button type="button" onclick="showForgotPassword()" class="text-sm text-blue-600 hover:text-blue-800">
+                                Forgot password?
+                            </button>
+                        </div>
+                        <button type="submit" class="w-full flex justify-center py-2 md:py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm md:text-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Log In</button>
+                    </form>
+                    <!-- Teacher/Admin Login -->
+                    <form id="teacher-login-form" class="space-y-4 md:space-y-6 hidden">
+                        <div>
+                            <label for="teacher-username" class="block text-sm font-medium text-gray-700">Username</label>
+                            <input type="text" id="teacher-username" required class="mt-1 block w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="sai">
+                        </div>
+                        <div>
+                            <label for="teacher-password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="teacher-password" required class="mt-1 block w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" value="pass">
+                        </div>
+                                                <div class="flex items-center justify-between mb-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                            </label>
+                            <button type="button" onclick="showForgotPassword()" class="text-sm text-blue-600 hover:text-blue-800">
+                                Forgot password?
+                            </button>
+                        </div>
+                        <button type="submit" class="w-full flex justify-center py-2 md:py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm md:text-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Log In</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Student Dashboard - Mobile Responsive -->
+    <section id="student-dashboard-section" class="min-h-screen bg-gray-100 hidden">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b sticky top-0 z-40">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-3 md:py-4">
+                    <div class="flex items-center space-x-2 md:space-x-4">
+                        <div class="w-8 h-8 md:w-10 md:h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm md:text-base"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg md:text-xl font-bold text-gray-900" id="student-name-display"></h1>
+                            <p class="text-xs md:text-sm text-gray-500" id="student-details-display"></p>
+                        </div>
+                    </div>
+                    <button id="student-logout" class="bg-red-500 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-red-600 flex items-center text-sm">
+                        <i class="fas fa-sign-out-alt mr-1 md:mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                
+                <!-- Student Profile Card -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onclick="showStudentProfile()">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-graduate text-blue-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">My Profile</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Personal Details</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                    <div class="text-xs md:text-sm text-gray-600">
+                        <p>View and manage your personal information</p>
+                    </div>
+                </div>
+
+                <!-- Announcements Card -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onclick="showAllAnnouncements()">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-bullhorn text-yellow-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Announcements</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Latest Updates</p>
+                            </div>
+                        </div>
+                        <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full" id="announcement-count">0</span>
+                    </div>
+                    <div id="student-announcements-preview" class="text-xs md:text-sm text-gray-600">
+                        <p>No new announcements</p>
+                    </div>
+                </div>
+
+                <!-- Attendance Card -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onclick="showAttendanceModal()">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-check text-green-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Attendance</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Track Record</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="text-xl md:text-2xl font-bold text-green-600" id="attendance-percentage">0%</div>
+                        <div class="text-xs md:text-sm text-gray-500">Overall</div>
+                    </div>
+                </div>
+
+                <!-- Marks & Results Card -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onclick="showMarksModal()">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-trophy text-purple-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Marks & Results</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Academic Performance</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="text-xl md:text-2xl font-bold text-purple-600" id="average-marks">0</div>
+                        <div class="text-xs md:text-sm text-gray-500">Average</div>
+                    </div>
+                </div>
+
+                <!-- Assignments Card -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onclick="showAssignmentsModal()">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-tasks text-orange-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Assignments</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Homework & Projects</p>
+                            </div>
+                        </div>
+                        <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full" id="pending-assignments">0</span>
+                    </div>
+                    <div class="text-xs md:text-sm text-gray-600">
+                        <p>View pending assignments</p>
+                    </div>
+                </div>
+
+                <!-- Syllabus Card -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow cursor-pointer" onclick="showSyllabusModal()">
+                    <div class="flex items-center justify-between mb-3 md:mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-book-open text-indigo-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Syllabus</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Course Materials</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                    <div class="text-xs md:text-sm text-gray-600">
+                        <p>Access course syllabus and materials</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Communication Section -->
+            <div class="mt-6 md:mt-8">
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-comments text-pink-600 text-lg md:text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-base md:text-lg font-semibold text-gray-900">Class Discussion</h3>
+                            <p class="text-xs md:text-sm text-gray-500">ECE Batch 2024</p>
+                        </div>
+                    </div>
+                    <div id="branch-chat-window" class="h-48 md:h-64 overflow-y-auto bg-gray-50 p-3 md:p-4 rounded-lg mb-4 border"></div>
+                    <form id="branch-chat-form" class="flex">
+                        <input type="text" id="chat-input" placeholder="Type a message..." required class="flex-1 px-3 py-2 md:px-4 md:py-2 rounded-l-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 md:px-6 md:py-2 rounded-r-lg hover:bg-blue-700">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teacher/Admin Dashboard - Mobile Responsive -->
+    <section id="teacher-dashboard-section" class="min-h-screen bg-gray-100 hidden">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b sticky top-0 z-40">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-3 md:py-4">
+                    <div class="flex items-center space-x-2 md:space-x-4">
+                        <div class="w-8 h-8 md:w-10 md:h-10 bg-indigo-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user-tie text-white text-sm md:text-base"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg md:text-xl font-bold text-gray-900" id="teacher-name-display"></h1>
+                            <p class="text-xs md:text-sm text-gray-500">Administrator Dashboard</p>
+                        </div>
+                    </div>
+                    <button id="teacher-logout" class="bg-red-500 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-red-600 flex items-center text-sm">
+                        <i class="fas fa-sign-out-alt mr-1 md:mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content -->
+        <div class="px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+                <div class="bg-white rounded-xl shadow-md p-3 md:p-6 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600 text-sm md:text-xl"></i>
+                        </div>
+                        <div class="ml-2 md:ml-3">
+                            <p class="text-xs md:text-sm text-gray-500">Students</p>
+                            <p class="text-lg md:text-2xl font-bold text-gray-900" id="total-students">66</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-3 md:p-6 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 md:w-12 md:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-green-600 text-sm md:text-xl"></i>
+                        </div>
+                        <div class="ml-2 md:ml-3">
+                            <p class="text-xs md:text-sm text-gray-500">Attendance</p>
+                            <p class="text-lg md:text-2xl font-bold text-gray-900" id="today-attendance">85%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-3 md:p-6 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 md:w-12 md:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tasks text-yellow-600 text-sm md:text-xl"></i>
+                        </div>
+                        <div class="ml-2 md:ml-3">
+                            <p class="text-xs md:text-sm text-gray-500">Tasks</p>
+                            <p class="text-lg md:text-2xl font-bold text-gray-900" id="pending-tasks">12</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-3 md:p-6 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 md:w-12 md:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-purple-600 text-sm md:text-xl"></i>
+                        </div>
+                        <div class="ml-2 md:ml-3">
+                            <p class="text-xs md:text-sm text-gray-500">Average</p>
+                            <p class="text-lg md:text-2xl font-bold text-gray-900" id="class-average">78.5</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                
+                <!-- Manage Announcements -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-bullhorn text-yellow-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Announcements</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Broadcast Messages</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form id="announcement-form" class="space-y-3">
+                        <textarea id="announcement-text" class="w-full h-16 md:h-20 p-3 rounded-lg border border-gray-300 text-sm" placeholder="Write announcement..."></textarea>
+                        <button type="submit" class="w-full bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 text-sm">Post Announcement</button>
+                    </form>
+                </div>
+
+                <!-- Manage Attendance -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-check text-green-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Attendance</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Mark Present/Absent</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="openAttendancePage()" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">Take Attendance</button>
+                </div>
+
+                <!-- Manage Marks -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-purple-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Marks Entry</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Subject-wise Grades</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form id="marks-form" class="space-y-3">
+                        <input type="text" id="marks-roll-no" placeholder="Roll Number" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        <select id="marks-subject" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                            <option value="">Select Subject</option>
+                            <option value="EDC">EDC (Electronic Device & Circuits)</option>
+                            <option value="DLD">DLD (Digital Logic Design)</option>
+                            <option value="UHV">UHV (Universal Human Values)</option>
+                            <option value="SS">SS (Signals & Systems)</option>
+                            <option value="PVC">PVC (Programming in C)</option>
+                        </select>
+                        <input type="number" id="marks-score" placeholder="Marks (0-100)" min="0" max="100" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm">Update Marks</button>
+                    </form>
+                </div>
+
+                <!-- Assignment Management -->
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 md:w-12 md:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-tasks text-orange-600 text-lg md:text-xl"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">Assignments</h3>
+                                <p class="text-xs md:text-sm text-gray-500">Homework & Projects</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form id="assignment-form" class="space-y-3">
+                        <input type="text" id="assignment-title" placeholder="Assignment Title" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        <select id="assignment-subject" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                            <option value="">Select Subject</option>
+                            <option value="EDC">EDC</option>
+                            <option value="DLD">DLD</option>
+                            <option value="UHV">UHV</option>
+                            <option value="SS">SS</option>
+                            <option value="PVC">PVC</option>
+                        </select>
+                        <textarea id="assignment-description" placeholder="Description" class="w-full h-12 md:h-16 p-3 rounded-lg border border-gray-300 text-sm"></textarea>
+                        <input type="date" id="assignment-due-date" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        <button type="submit" class="w-full bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 text-sm">Create Assignment</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Attendance Taking Page -->
+    <section id="attendance-page" class="min-h-screen bg-gray-100 hidden">
+        <div class="bg-white shadow-sm border-b sticky top-0 z-40">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-3 md:py-4">
+                    <div>
+                        <h1 class="text-lg md:text-xl font-bold text-gray-900">Take Attendance</h1>
+                        <p class="text-xs md:text-sm text-gray-500" id="attendance-date-time"></p>
+                    </div>
+                    <button onclick="backToTeacherDashboard()" class="bg-gray-500 text-white px-3 py-2 md:px-4 md:py-2 rounded-lg hover:bg-gray-600 text-sm">
+                        <i class="fas fa-arrow-left mr-1 md:mr-2"></i>Back
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+            <div class="bg-white rounded-xl shadow-md p-4 md:p-6 mb-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Subject</label>
+                    <select id="attendance-subject-select" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm">
+                        <option value="">Select Subject</option>
+                        <option value="EDC">EDC (Electronic Device & Circuits)</option>
+                        <option value="DLD">DLD (Digital Logic Design)</option>
+                        <option value="UHV">UHV (Universal Human Values)</option>
+                        <option value="SS">SS (Signals & Systems)</option>
+                        <option value="PVC">PVC (Programming in C)</option>
+                    </select>
+                </div>
+                <button onclick="loadStudentsForAttendance()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">Load Students</button>
+            </div>
+
+            <div id="attendance-student-list" class="hidden">
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Mark Attendance</h3>
+                        <div class="flex space-x-2">
+                            <button onclick="markAllPresent()" class="bg-green-500 text-white px-3 py-1 rounded text-xs">All Present</button>
+                            <button onclick="markAllAbsent()" class="bg-red-500 text-white px-3 py-1 rounded text-xs">All Absent</button>
+                        </div>
+                    </div>
+                    <div id="student-attendance-grid" class="grid grid-cols-1 gap-2 mb-4"></div>
+                    <button onclick="saveAttendance()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Save Attendance</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- All Modals -->
+    <!-- Student Profile Modal -->
+    <div id="student-profile-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900">Student Profile</h3>
+                <button onclick="closeModal('student-profile-modal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="student-profile-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Announcements Modal -->
+    <div id="announcements-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900">All Announcements</h3>
+                <button onclick="closeModal('announcements-modal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="announcements-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Attendance Modal -->
+    <div id="attendance-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900">Attendance Details</h3>
+                <button onclick="closeModal('attendance-modal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="attendance-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Marks Modal -->
+    <div id="marks-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900">Marks & Results</h3>
+                <button onclick="closeModal('marks-modal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="marks-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Assignments Modal -->
+    <div id="assignments-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900">Assignments</h3>
+                <button onclick="closeModal('assignments-modal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="assignments-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Syllabus Modal -->
+    <div id="syllabus-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900">Course Syllabus</h3>
+                <button onclick="closeModal('syllabus-modal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="syllabus-content" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- STUDENT DATA (All 66 students) ---
+        const ALL_STUDENTS = [
+            {id: 1, name: "A.YESTERI", rollNo: "2410201", password: "pass", branch: "ECE", email: "anandarekantianand@gmail.com", phone: "9705087435", father_name: "A.ANANDU", dob: "2007-08-16", blood_group: "A+", address: "2-162, sc colony,Eniga bala yemiganuru, Kurnol District", hostel: "Kaveri", room_no: "318"},
+            {id: 2, name: "A. SAI VAMSHI", rollNo: "2410202", password: "pass", branch: "ECE", email: "saivamshiaspari@gmail.com", phone: "8328112876", father_name: "A. LEPAKSHI", dob: "2007-07-15", blood_group: "B+", address: "4/62-9 chigali,aspari, Kurnool District", hostel: "Thungabadra", room_no: "107"},
+            {id: 3, name: "A. SREEVIDHYA", rollNo: "2410203", password: "pass", branch: "ECE", email: "sreevidhyaataka777@gmail.com", phone: "6305575629", father_name: "A. GOVINDARAJULU", dob: "2006-10-27", blood_group: "O+", address: "26-B 290, indiramma colony , Dharmavaram, sathya sai District", hostel: "Kaveri", room_no: "327"},
+            {id: 4, name: "B. SANKAR", rollNo: "2410204", password: "pass", branch: "ECE", email: "bsankar.6125@gmail.com", phone: "8897142137", father_name: "B. RANGANAYAKULU", dob: "2005-12-12", blood_group: "O-", address: "d.no.1-3-507,Chenna Reddy Colony, Pulivendula,Kadapa district", hostel: "Thungabadra", room_no: "104"},
+            {id: 5, name: "B. PRASHANTH", rollNo: "2410205", password: "pass", branch: "ECE", email: "royalbab480@gmail.com", phone: "6301601713", father_name: "B. DEVADAS", dob: "2006-04-08", blood_group: "A+", address: "7-244, mala street, pamidi mandal, Anantapur District", hostel: "Thungabadra", room_no: "111"},
+            {id: 6, name: "B. DIVYA", rollNo: "2410206", password: "pass", branch: "ECE", email: "divyabijja042@gmail.com", phone: "8074557816", father_name: "B.NARSHIMULU", dob: "2007-04-14", blood_group: "O-", address: "2-76,Yeradoddi v, kodumur m, kurnool d", hostel: "Kaveri", room_no: "118"},
+            {id: 7, name: "B. AKHIL", rollNo: "2410207", password: "pass", branch: "ECE", email: "boreddyakhil845@gmail.com", phone: "6300430652", father_name: "B.DORASWAMI REDDY", dob: "2007-10-27", blood_group: "AB+", address: "1-73sankavaram, vinjamur, Nellore District", hostel: "Thungabadra", room_no: "105"},
+            {id: 8, name: "B.VIGNESH", rollNo: "2410208", password: "pass", branch: "ECE", email: "bv643143@gmail.com", phone: "9866974151", father_name: "B.JANARDAN", dob: "2006-09-04", blood_group: "O-", address: "1/116 sri sathya sai District, amadaguru, chinagani palli", hostel: "Thungabadra", room_no: "116"},
+            {id: 9, name: "C. SAI SARITHA", rollNo: "2410209", password: "pass", branch: "ECE", email: "charupallisaisarith@gmail.com", phone: "8121929380", father_name: "C. RAMANJINEYULU", dob: "2005-11-23", blood_group: "A+", address: "15-106-34-9 kotabhavi street, kuttagula village, kadiri mandal,sri satya sai district", hostel: "Kaveri", room_no: "324"},
+            {id: 10, name: "D. SIRISHA", rollNo: "2410210", password: "pass", branch: "ECE", email: "sirishasiri9876543@gmail.com", phone: "8790074867", father_name: "D. KESHAVULU", dob: "2006-12-21", blood_group: "B+", address: "2/15 vidya nagar jantu college opposite anathapur (m)(D)", hostel: "Day-scholar", room_no: "-"},
+            {id: 11, name: "D. RAJESH", rollNo: "2410211", password: "pass", branch: "ECE", email: "rr7262367@gmail.com", phone: "6300707249", father_name: "D. GURUSWAMY", dob: "2006-08-04", blood_group: "O+", address: "1-53 Mudigubba , sri sathya sai District, kodavandla palli village", hostel: "Day-scholar", room_no: "-"},
+            {id: 12, name: "D. RESHMA", rollNo: "2410212", password: "pass", branch: "ECE", email: "reshmadudekula699@gmail.com", phone: "7013177355", father_name: "D. MASTHAN VALI", dob: "2005-08-07", blood_group: "O+", address: "20/247-A umamaheshwari nagar , guntakal", hostel: "Kaveri", room_no: "218"},
+            {id: 13, name: "D. VISWANATH NAIK", rollNo: "2410213", password: "pass", branch: "ECE", email: "viswanathnaikd@gmail.com", phone: "7674879290", father_name: "D. SRINIVASULU NAIK", dob: "2005-11-10", blood_group: "AB+", address: "4-375, A B palli Thanda Mudigubba, Anantapur", hostel: "Thungabadra", room_no: "117"},
+            {id: 14, name: "E. JYOTHI", rollNo: "2410214", password: "pass", branch: "ECE", email: "edigajyothi81@gmail.com", phone: "7989723005", father_name: "E. BHEEMUDU", dob: "2007-02-06", blood_group: "A+", address: "4/183,guvvaladoddi, larlapalli, yemmiganuru, kurnool", hostel: "Kaveri", room_no: "324"},
+            {id: 15, name: "E. NARENDRA", rollNo: "2410215", password: "pass", branch: "ECE", email: "ekappagarinarendra57@gmail.com", phone: "8008367718", father_name: "E. CHINNA NALLAPPA", dob: "2005-12-17", blood_group: "B+", address: "1/86 chiyyedu, Anantapur", hostel: "Thungabadra", room_no: "112"},
+            {id: 16, name: "E. BALA SAGAR NAIK", rollNo: "2410216", password: "pass", branch: "ECE", email: "ebalasagarnayaknaik@gmail.com", phone: "9392531860", father_name: "E. SRIRAMULU NAIK", dob: "2007-02-14", blood_group: "O+", address: "2-21 thummalabylu peddathanda village ,gandlapenta mandal,sri Satya Sai district", hostel: "Thungabadra", room_no: "117"},
+            {id: 17, name: "E.AKSHAYA", rollNo: "2410217", password: "pass", branch: "ECE", email: "eslavathakshaya786@gmail.com", phone: "6301918288", father_name: "E. LAKSHMI NAIK", dob: "2006-12-14", blood_group: "A+", address: "3/45-kummarvandla palli, kadiri, sathy sai District", hostel: "Kaveri", room_no: "218"},
+            {id: 18, name: "G.MANOJ", rollNo: "2410218", password: "pass", branch: "ECE", email: "gadarapumanoj@gmail.com", phone: "9347715400", father_name: "G.CHINNA BABU", dob: "2007-06-10", blood_group: "B+", address: "5/106A-12C muddanur Kadapa district", hostel: "Thungabadra", room_no: "104"},
+            {id: 19, name: "G.JANITHA", rollNo: "2410219", password: "pass", branch: "ECE", email: "janithajenni@gmail.com", phone: "8247668582", father_name: "G.JHON KANTHAIAH", dob: "2006-06-22", blood_group: "O+", address: "water tank road, kadiri, anantapur district", hostel: "Kaveri", room_no: "308"},
+            {id: 20, name: "G. SAI DINESH", rollNo: "2410220", password: "pass", branch: "ECE", email: "ghodkarsaidinesh@gmail.com", phone: "9347051097", father_name: "G. NEELAKANTESWARA RAO", dob: "2007-06-13", blood_group: "B+", address: "Kurnool District, Dhone, Dhone(village)", hostel: "Thungabadra", room_no: "104"},
+            // Continue with remaining students...
+            {id: 21, name: "G. MOUNIKA", rollNo: "2410221", password: "pass", branch: "ECE", email: "mounikag755@gmail.com", phone: "8247718242", father_name: "G. ERANNA", dob: "2007-02-16", blood_group: "B+", address: "2/90A tallakera, gummagatta mandal, Anantapur", hostel: "Kaveri", room_no: "308"},
+            {id: 22, name: "G. RAJESH", rollNo: "2410222", password: "pass", branch: "ECE", email: "golarajesh5@gmail.com", phone: "7981165007", father_name: "G. KRISHNAMURTHY", dob: "2005-01-01", blood_group: "B+", address: "12-600 Dodagatta, kalyanadurgam, Anantapur", hostel: "Thungabadra", room_no: "109"},
+            {id: 23, name: "G. MANTHESH", rollNo: "2410223", password: "pass", branch: "ECE", email: "skuandjntu@gmail.com", phone: "7013061715", father_name: "G. LAKSHMANNA", dob: "2005-10-18", blood_group: "A+", address: "1-123-veerapuram, gummagatta, Anantapur District", hostel: "Thungabadra", room_no: "115"},
+            {id: 24, name: "G. ARTHI SREE", rollNo: "2410224", password: "pass", branch: "ECE", email: "varmasree3468@gmail.com", phone: "9866455518", father_name: "B. MALLIKARJUNA", dob: "2007-04-30", blood_group: "O+", address: "1-166, Near valmiki statue, kandukur, Anantapur District", hostel: "Day-scholar", room_no: "-"},
+            {id: 25, name: "H. CHANDRA SHEKAR", rollNo: "2410225", password: "pass", branch: "ECE", email: "chandra45rc15@gmail.com", phone: "9573880347", father_name: "H. NAGAPPA", dob: "2006-06-09", blood_group: "O-", address: "sc colony 1/10 house number suluvoy village,holagunda mandal, kurnool district", hostel: "Thungabadra", room_no: "110"},
+            {id: 26, name: "J. MANIKANTA", rollNo: "2410226", password: "pass", branch: "ECE", email: "jadavannurswamy@gmail.com", phone: "6301228007", father_name: "J. VANNURSWAMY", dob: "2006-08-09", blood_group: "AB-", address: "7-687 Hananahal, kanekal, Anantapur", hostel: "Thungabadra", room_no: "115"},
+            {id: 27, name: "J. BHARATH KUMAR", rollNo: "2410227", password: "pass", branch: "ECE", email: "bharathkumarj1223@gmail.com", phone: "8074996355", father_name: "J. RAMANJULU", dob: "2006-10-28", blood_group: "B+", address: "27-18sri sathya sai District, Tanakal, parakuvandla palli", hostel: "Thungabadra", room_no: "103"},
+            {id: 28, name: "K. PADMAVATHI", rollNo: "2410228", password: "pass", branch: "ECE", email: "kadumurupadmavathi@gmail.com", phone: "9346816961", father_name: "K. LAKSHMANNA", dob: "2007-02-06", blood_group: "O+", address: "2-76,k. markapuram, kallur, kurnool District", hostel: "Kaveri", room_no: "307"},
+            {id: 29, name: "K. GIRIJA", rollNo: "2410229", password: "pass", branch: "ECE", email: "kgirijagirijq12345@gmail.com", phone: "9392765490", father_name: "K. HANUMANTHAPPA", dob: "2006-10-03", blood_group: "A+", address: "mamduru, bramha samudram, Anantapur", hostel: "Kaveri", room_no: "101"},
+            {id: 30, name: "K.V. NANDINI", rollNo: "2410230", password: "pass", branch: "ECE", email: "kvnandini74@gmail.com", phone: "7989025578", father_name: "K.V. PEDDA VEERESH", dob: "2007-03-05", blood_group: "O+", address: "17/131/97- Sc, colony, kallubhavi, Adoni Mandal, kurnool District", hostel: "Kaveri", room_no: "310"},
+            // Add remaining 36 students...
+            {id: 31, name: "K. SRAVANTHI", rollNo: "2410231", password: "pass", branch: "ECE", email: "sravanthikambham7@gmail.com", phone: "8639788819", father_name: "K. RAMANA REDDY", dob: "2006-11-28", blood_group: "B+", address: "1-97A basireddy palle, veerapunayunipalli, kadapa", hostel: "Kaveri", room_no: "305"},
+            {id: 32, name: "K.DISHMITHA", rollNo: "2410232", password: "pass", branch: "ECE", email: "kanduridishmitha2329@gmail.com", phone: "9392693292", father_name: "K. NARASIMHULU NAIDU", dob: "2007-08-23", blood_group: "O+", address: "9/5, Nagiri, sambepalli, Annamayya District", hostel: "Kaveri", room_no: "311"},
+            {id: 33, name: "K. ABHISHEK", rollNo: "2410233", password: "pass", branch: "ECE", email: "kappalaabhishek4@gmail.com", phone: "9063389750", father_name: "K. PARANDHAMA", dob: "2005-04-11", blood_group: "O+", address: "1-96, poleramma veedhi, kandukuru village, Anantapur mandal", hostel: "Day-scholar", room_no: "-"},
+            {id: 34, name: "K. RAKSHITHA", rollNo: "2410234", password: "pass", branch: "ECE", email: "krakshi412@gmail.com", phone: "7702807314", father_name: "N. KARIYANNA", dob: "2007-08-17", blood_group: "AB+", address: "morubagal, 1-97, sc colony, gudibanda, sathya sai District", hostel: "Kaveri", room_no: "218"},
+            {id: 35, name: "K. SREEHITHA", rollNo: "2410235", password: "pass", branch: "ECE", email: "sreerama2515@gmail.com", phone: "7207124070", father_name: "K. SIDDA REDDY", dob: "2006-06-15", blood_group: "A+", address: "1/97 venkatasetti palli, Badvel mandal, chuddappa", hostel: "Kaveri", room_no: "324"},
+            {id: 36, name: "K. DHARANI BAI", rollNo: "2410236", password: "pass", branch: "ECE", email: "korradharani95@gmail.com", phone: "9390515925", father_name: "K. VENKATESH NAIK", dob: "2007-06-18", blood_group: "A-", address: "3-127, sunnapugutta Thandaa, vtc: kadiri Anantapur", hostel: "Kaveri", room_no: "311"},
+            {id: 37, name: "K. TEJASWINI", rollNo: "2410237", password: "pass", branch: "ECE", email: "tejaswinichinni44@gmail.com", phone: "7989199211", father_name: "K. HARI KUMAR", dob: "2006-05-13", blood_group: "B+", address: "39/317-2-15, R.V.S Nagar, kadapa District", hostel: "Day-scholar", room_no: "-"},
+            {id: 38, name: "K. INDRAJA", rollNo: "2410238", password: "pass", branch: "ECE", email: "kuntavath.30@gmail.com", phone: "9346566221", father_name: "K. IPRI NAIK", dob: "2007-08-02", blood_group: "B+", address: "Dr no 9/22, Gundalathanda, G. erragudi, gooty, tuggali, kurnool District", hostel: "Kaveri", room_no: "103"},
+            {id: 39, name: "K. SIVANI", rollNo: "2410239", password: "pass", branch: "ECE", email: "kurrasivani90@gmail.com", phone: "9440080983", father_name: "K. VENKATA RAMANA", dob: "2006-05-09", blood_group: "B+", address: "6/15 mulavaripalli, bhumayapalli, khajipeta mandal, kadapa District", hostel: "Kaveri", room_no: "317"},
+            {id: 40, name: "K.P. RAMADEVI", rollNo: "2410240", password: "pass", branch: "ECE", email: "rd8976228@gmail.com", phone: "7815874066", father_name: "K.P. HANUMANTHAPPA", dob: "2006-01-04", blood_group: "B+", address: "9-2/64 kuruvalli, Alur, kurnool", hostel: "Kaveri", room_no: "218"},
+            {id: 41, name: "K. SREEDHAR", rollNo: "2410241", password: "pass", branch: "ECE", email: "siddusreedhar721@gmail.com", phone: "9440002729", father_name: "K. LAKSHMANNA", dob: "2006-12-12", blood_group: "A+", address: "80/134/A1, venkatadri Nagar, kallur mandal, kurnool District", hostel: "Thungabadra", room_no: "105"},
+            {id: 42, name: "L.B. KARTHIK", rollNo: "2410242", password: "pass", branch: "ECE", email: "karthiklb9850@gmail.com", phone: "8919151143", father_name: "L.B. DEVENDRAPPA", dob: "2007-06-20", blood_group: "A+", address: "1-16-1, peddahulthi, pattikonda, kurnool District", hostel: "Thungabadra", room_no: "116"},
+            {id: 43, name: "M. NAVADEEP", rollNo: "2410243", password: "pass", branch: "ECE", email: "mallavarapunavadeep06@gmail.com", phone: "9550906096", father_name: "M. DASU", dob: "2006-01-11", blood_group: "B+", address: "8-97A Brahmanapalli(village), piduguralla, palnadu District", hostel: "Thungabadra", room_no: "105"},
+            {id: 44, name: "M. MANOJ KUMAR", rollNo: "2410244", password: "pass", branch: "ECE", email: "manojm16568@gmail.com", phone: "9494669564", father_name: "M. PRASAD", dob: "2007-03-31", blood_group: "A+", address: "Atmakur (v)(m), Anantapur District.", hostel: "Thungabadra", room_no: "108"},
+            {id: 45, name: "M. SINDHU BHARGAVI", rollNo: "2410245", password: "pass", branch: "ECE", email: "sindhubhargavimannula@gmail.com", phone: "8500672128", father_name: "M. SREENIVASULU", dob: "2006-02-01", blood_group: "O+", address: "3-167,Akuthota palli, Itikalapalle, Anantapur District", hostel: "Day-scholar", room_no: "-"},
+            {id: 46, name: "M. HARITHA BAI", rollNo: "2410246", password: "pass", branch: "ECE", email: "mudavathharitha301@gmail.com", phone: "6301069212", father_name: "M. GOVINDU NAIK", dob: "2007-05-20", blood_group: "O+", address: "Alebad thanda, pyapili mandal, nandyala District, 4/57", hostel: "Kaveri", room_no: "204"},
+            {id: 47, name: "M. AFSHAD", rollNo: "2410247", password: "pass", branch: "ECE", email: "mullaafshad63@gmail.com", phone: "6305666494", father_name: "M. ABDUL RAJAQ", dob: "2007-03-04", blood_group: "O+", address: "Dr no:-16/2/2g3 Darga street, kutagulla, kadiri, sathya sai District", hostel: "Kaveri", room_no: "317"},
+            {id: 48, name: "N. NANDINI", rollNo: "2410248", password: "pass", branch: "ECE", email: "nandininagaraju755@gmail.com", phone: "8179511826", father_name: "S. NAGARAJU", dob: "2006-10-26", blood_group: "A+", address: "9/139T mallina madugu, Rolla, sathya sai District", hostel: "Kaveri", room_no: "214"},
+            {id: 49, name: "N. DHARANI", rollNo: "2410249", password: "pass", branch: "ECE", email: "dharanivisweswaran07@gmail.com", phone: "7842895740", father_name: "N. VISWESWARA", dob: "2007-07-01", blood_group: "A+", address: "11/318, Aravind Nagar, Anantapur", hostel: "Kaveri", room_no: "311"},
+            {id: 50, name: "N. AMARNATH BABU", rollNo: "2410250", password: "pass", branch: "ECE", email: "nukanaboinaamarnath6@gmail.com", phone: "9059353554", father_name: "N. VEERA PRATHAP", dob: "2005-06-17", blood_group: "O+", address: "91/16 kadapa District, c.k.dinne, mamillapalli", hostel: "Thungabadra", room_no: "116"},
+            {id: 51, name: "O. SUCHITRA", rollNo: "2410251", password: "pass", branch: "ECE", email: "suchitraonteddu@gmail.com", phone: "8919170047", father_name: "O. NAGESWAR REDDY", dob: "2006-07-18", blood_group: "O+", address: "2/150venkata Reddy palli, Tadipatri, Anantapur District", hostel: "Kaveri", room_no: "215"},
+            {id: 52, name: "P. JAYASHALI", rollNo: "2410252", password: "pass", branch: "ECE", email: "pjayashalipjayashali@gmail.com", phone: "9391549037", father_name: "P. PRASANNAKUMAR", dob: "2004-05-07", blood_group: "A+", address: "2/891, Modinabad,prakashnagar, Guntakal", hostel: "Thungabadra", room_no: "102"},
+            {id: 53, name: "P. MURALI", rollNo: "2410253", password: "pass", branch: "ECE", email: "poojarimurali8557@gmail.com", phone: "9963138898", father_name: "P. LAXMINARAYANA", dob: "2007-08-31", blood_group: "A+", address: "5/19 M.Bandameedapalli, Rapthadu, Anantapur District", hostel: "Thungabadra", room_no: "110"},
+            {id: 54, name: "S.B. SREEVANI", rollNo: "2410254", password: "pass", branch: "ECE", email: "ssreevani123@gmail.com", phone: "9908871574", father_name: "S.B. SWAMI SANKAR", dob: "2007-02-20", blood_group: "A+", address: "Anantapur District, pangal road, 9/56A", hostel: "Day-scholar", room_no: "-"},
+            {id: 55, name: "S. HARI", rollNo: "2410255", password: "pass", branch: "ECE", email: "haritej889@gmail.com", phone: "9676320594", father_name: "S. OBULESHU", dob: "2004-07-07", blood_group: "AB+", address: "24/1257, jammalamadugu, kadapa District", hostel: "Thungabadra", room_no: "105"},
+            {id: 56, name: "S.K. VENKAT SHYAM", rollNo: "2410256", password: "pass", branch: "ECE", email: "venkatshyam0906@gmail.com", phone: "9866567307", father_name: "S.K SATEESH", dob: "2006-10-09", blood_group: "AB+", address: "10-108/76, shiva sai estate, thirumala Nagar, mandigiri, adoni, kurnool District", hostel: "Thungabadra", room_no: "109"},
+            {id: 57, name: "S. ASWIYA ANZUM", rollNo: "2410257", password: "pass", branch: "ECE", email: "shaikaswiya14@gmail.com", phone: "8328437833", father_name: "S. CHAND BASHA", dob: "2007-08-06", blood_group: "O-", address: "18/207 tanakallu, sathya sai District", hostel: "Kaveri", room_no: "220"},
+            {id: 58, name: "S.HASINI", rollNo: "2410258", password: "pass", branch: "ECE", email: "hasinisunguluru@gmail.com", phone: "8309030546", father_name: "S.VENKATA SUBBAIAH", dob: "2007-06-18", blood_group: "AB+", address: "37/501-1, Nehru nagar, chinachowk, kadapa", hostel: "Kaveri", room_no: "324"},
+            {id: 59, name: "S. RUDRA TARUN REDDY", rollNo: "2410259", password: "pass", branch: "ECE", email: "rudratarun576@gmail.com", phone: "7989947042", father_name: "S. RAMMOHAN REDDY", dob: "2006-07-05", blood_group: "A+", address: "11-84, Ramapuram, owk, nandhyal", hostel: "Thungabadra", room_no: "103"},
+            {id: 60, name: "T. SHARADHA", rollNo: "2410260", password: "pass", branch: "ECE", email: "jyothiraghv2003@gmali.com", phone: "8951609416", father_name: "THIPPESWAMY", dob: "2007-06-17", blood_group: "O+", address: "1-33, Nidragatta, Amarapuram, sathya sai", hostel: "Kaveri", room_no: "218"},
+            {id: 61, name: "T. HARINI", rollNo: "2410261", password: "pass", branch: "ECE", email: "harinithumpera@gmail.com", phone: "9391515821", father_name: "T. SANJEEVULU", dob: "2007-03-28", blood_group: "O+", address: "5-6, chinnamatlagondi village,singanamala mandal, Anantapur district", hostel: "Kaveri", room_no: "313"},
+            {id: 62, name: "V. SINDHU", rollNo: "2410262", password: "pass", branch: "ECE", email: "vaddesindhu1119@gmail.com", phone: "7337536213", father_name: "V. RAMANA", dob: "2005-03-27", blood_group: "O+", address: "6/122 old lepakshi, hindupur", hostel: "Kaveri", room_no: "316"},
+            {id: 63, name: "V. KARTHIK", rollNo: "2410263", password: "pass", branch: "ECE", email: "karthikvattivalla@gmail.com", phone: "9391303837", father_name: "V. VENKATESWARULU", dob: "2006-05-20", blood_group: "O+", address: "2-45, chinna malkapuram, Dhone mandal, nandyal District", hostel: "Thungabhadra", room_no: "108"},
+            {id: 64, name: "Y. PRASANNA KUMAR REDDY", rollNo: "2410264", password: "pass", branch: "ECE", email: "yprasannakumarreddy2005@gmail.com", phone: "9381101004", father_name: "Y. SHANKAR REDDY", dob: "2005-06-09", blood_group: "B+", address: "1-610 sree ranga raju palli hindupur sri Satya Sai district", hostel: "Thungabadra", room_no: "110"},
+            {id: 65, name: "C. MUNI KRISHNA", rollNo: "2410265", password: "pass", branch: "ECE", email: "ciagramm@gmail.com", phone: "9381476645", father_name: "C. GUNASEKHAR", dob: "2005-05-13", blood_group: "B+", address: "perumalla palli village, pudipatala post", hostel: "Thungabadra", room_no: "117"},
+            {id: 66, name: "L. HARITHA", rollNo: "2410266", password: "pass", branch: "ECE", email: "harithalakkineni459@gmail.com", phone: "8688768575", father_name: "L. SREENIVASULU", dob: "2005-08-03", blood_group: "B+", address: "2/57 Anantapur District, peddapur, singanagutta palli", hostel: "Kaveri", room_no: "211"}
+        ];
+
+        const teacher = { name: 'Teacher Name', username: 'sai', password: 'pass', branch: 'ECE' };
+
+        const SUBJECTS = ['EDC', 'DLD', 'UHV', 'SS', 'PVC'];
+
+        const localStorageKeys = {
+            announcements: 'portal_announcements',
+            assignments: 'portal_assignments',
+            marks: 'portal_marks',
+            attendance: 'portal_attendance',
+            chat: 'portal_chat'
+        };
+
+        // UI Elements
+        const loginSection = document.getElementById('login-section');
+        const studentDashboardSection = document.getElementById('student-dashboard-section');
+        const teacherDashboardSection = document.getElementById('teacher-dashboard-section');
+        const attendancePage = document.getElementById('attendance-page');
+        const studentLoginForm = document.getElementById('student-login-form');
+        const teacherLoginForm = document.getElementById('teacher-login-form');
+        const studentTab = document.getElementById('student-tab');
+        const teacherTab = document.getElementById('teacher-tab');
+        const studentLogoutBtn = document.getElementById('student-logout');
+        const teacherLogoutBtn = document.getElementById('teacher-logout');
+        const alertModal = document.getElementById('alert-modal');
+        const alertTitle = document.getElementById('alert-title');
+        const alertMessage = document.getElementById('alert-message');
+
+        let currentUserData = null;
+        let currentRole = null;
+        let selectedSubject = '';
+        let attendanceData = {};
+
+        // Utility Functions
+        function showAlert(title, message) {
+            alertTitle.textContent = title;
+            alertMessage.textContent = message;
+            alertModal.classList.remove('hidden');
+            alertModal.classList.add('flex');
+        }
+        function hideAlert() { 
+            alertModal.classList.add('hidden'); 
+            alertModal.classList.remove('flex'); 
+        }
+        function loadData(key, def=[]) { 
+            const d = localStorage.getItem(key); 
+            return d ? JSON.parse(d) : def; 
+        }
+        function saveData(key, data) { 
+            localStorage.setItem(key, JSON.stringify(data)); 
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
+        // Tab switching
+        studentTab.onclick = () => {
+            studentTab.classList.add('border-blue-500','text-blue-500');
+            studentTab.classList.remove('border-transparent','text-gray-400');
+            teacherTab.classList.remove('border-blue-500','text-blue-500');
+            teacherTab.classList.add('border-transparent','text-gray-400');
+            studentLoginForm.classList.remove('hidden');
+            teacherLoginForm.classList.add('hidden');
+        };
+        teacherTab.onclick = () => {
+            teacherTab.classList.add('border-blue-500','text-blue-500');
+            teacherTab.classList.remove('border-transparent','text-gray-400');
+            studentTab.classList.remove('border-blue-500','text-blue-500');
+            studentTab.classList.add('border-transparent','text-gray-400');
+            teacherLoginForm.classList.remove('hidden');
+            studentLoginForm.classList.add('hidden');
+        };
+
+        // Login handlers
+        studentLoginForm.onsubmit = (e) => {
+            e.preventDefault();
+            const rollNo = e.target['student-roll-no'].value.trim();
+            const password = e.target['student-password'].value.trim();
+            const user = ALL_STUDENTS.find(s => s.rollNo === rollNo && s.password === password);
+            if (user) {
+                currentUserData = user;
+                currentRole = 'student';
+                showStudentDashboard();
+            } else {
+                showAlert('Login Failed', 'Invalid roll number or password.');
+            }
+        };
+        teacherLoginForm.onsubmit = (e) => {
+            e.preventDefault();
+            const username = e.target['teacher-username'].value.trim();
+            const password = e.target['teacher-password'].value.trim();
+            if (username === teacher.username && password === teacher.password) {
+                currentUserData = teacher;
+                currentRole = 'teacher';
+                showTeacherDashboard();
+            } else {
+                showAlert('Login Failed', 'Invalid username or password.');
+            }
+        };
+
+        // Logout handlers
+        studentLogoutBtn.onclick = () => { 
+            currentRole=null; 
+            currentUserData=null; 
+            showLogin(); 
+        }
+        teacherLogoutBtn.onclick = () => { 
+            currentRole=null; 
+            currentUserData=null; 
+            showLogin(); 
+        }
+
+        // Navigation functions
+        function showStudentDashboard() {
+            hideAllSections();
+            studentDashboardSection.classList.remove('hidden');
+            renderStudentDashboard();
+        }
+        function showTeacherDashboard() {
+            hideAllSections();
+            teacherDashboardSection.classList.remove('hidden');
+            renderTeacherDashboard();
+        }
+        function showLogin() {
+            hideAllSections();
+            loginSection.classList.remove('hidden');
+            studentLoginForm.reset();
+            teacherLoginForm.reset();
+        }
+        function hideAllSections() {
+            loginSection.classList.add('hidden');
+            studentDashboardSection.classList.add('hidden');
+            teacherDashboardSection.classList.add('hidden');
+            attendancePage.classList.add('hidden');
+        }
+
+        // Student Dashboard Functions
+        function renderStudentDashboard() {
+            document.getElementById('student-name-display').textContent = currentUserData.name;
+            document.getElementById('student-details-display').textContent = `${currentUserData.rollNo} | ${currentUserData.branch} | ${currentUserData.email}`;
+            
+            updateAnnouncementPreview();
+            updateAttendanceStats();
+            updateMarksStats();
+            updateAssignmentStats();
+            renderChat();
+        }
+
+        function updateAnnouncementPreview() {
+            const announcements = loadData(localStorageKeys.announcements, []);
+            const count = announcements.length;
+            document.getElementById('announcement-count').textContent = count;
+            
+            const preview = document.getElementById('student-announcements-preview');
+            if (count > 0) {
+                preview.innerHTML = `<p class="text-sm">${announcements[0].content.substring(0, 50)}...</p>`;
+            } else {
+                preview.innerHTML = '<p class="text-sm text-gray-500">No new announcements</p>';
+            }
+        }
+
+        function updateAttendanceStats() {
+            const allAttendance = loadData(localStorageKeys.attendance, {});
+            const studentAttendance = allAttendance[currentUserData.rollNo] || {};
+            
+            let totalClasses = 0;
+            let attendedClasses = 0;
+            
+            SUBJECTS.forEach(subject => {
+                const subjectAttendance = studentAttendance[subject] || [];
+                totalClasses += subjectAttendance.length;
+                attendedClasses += subjectAttendance.filter(a => a.status === 'Present').length;
+            });
+            
+            if (totalClasses > 0) {
+                const percentage = ((attendedClasses / totalClasses) * 100).toFixed(0);
+                document.getElementById('attendance-percentage').textContent = percentage + '%';
+            } else {
+                document.getElementById('attendance-percentage').textContent = '0%';
+            }
+        }
+
+        function updateMarksStats() {
+            const allMarks = loadData(localStorageKeys.marks, {});
+            const studentMarks = allMarks[currentUserData.rollNo] || {};
+            
+            let totalMarks = 0;
+            let subjectCount = 0;
+            
+            SUBJECTS.forEach(subject => {
+                if (studentMarks[subject] !== undefined) {
+                    totalMarks += studentMarks[subject];
+                    subjectCount++;
+                }
+            });
+            
+            if (subjectCount > 0) {
+                const average = Math.round(totalMarks / subjectCount);
+                document.getElementById('average-marks').textContent = average;
+            } else {
+                document.getElementById('average-marks').textContent = '0';
+            }
+        }
+
+        function updateAssignmentStats() {
+            const assignments = loadData(localStorageKeys.assignments, []);
+            const branchAssignments = assignments.filter(a => a.branch === currentUserData.branch);
+            document.getElementById('pending-assignments').textContent = branchAssignments.length;
+        }
+
+        function renderChat() {
+            const chatMessages = loadData(localStorageKeys.chat, []);
+            const chatWindow = document.getElementById('branch-chat-window');
+            chatWindow.innerHTML = chatMessages.map(data =>
+                `<div class="mb-3 p-2 bg-white rounded-lg shadow-sm">
+                    <div class="font-semibold text-sm text-gray-800">${data.user}</div>
+                    <div class="text-gray-600 text-sm">${data.message}</div>
+                    <div class="text-xs text-gray-400 mt-1">${data.timestamp || ''}</div>
+                </div>`
+            ).join('');
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // Modal Functions
+        function showStudentProfile() {
+            const modal = document.getElementById('student-profile-modal');
+            const content = document.getElementById('student-profile-content');
+            
+            content.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700">Name:</label>
+                        <p class="text-gray-900">${currentUserData.name}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700">Roll Number:</label>
+                        <p class="text-gray-900">${currentUserData.rollNo}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700">Father's Name:</label>
+                        <p class="text-gray-900">${currentUserData.father_name || 'N/A'}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700">Date of Birth:</label>
+                        <p class="text-gray-900">${currentUserData.dob || 'N/A'}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700">Blood Group:</label>
+                        <p class="text-gray-900">${currentUserData.blood_group || 'N/A'}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700">Phone:</label>
+                        <p class="text-gray-900">${currentUserData.phone}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700">Email:</label>
+                        <p class="text-gray-900">${currentUserData.email}</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-gray-700">Hostel:</label>
+                        <p class="text-gray-900">${currentUserData.hostel || 'N/A'}</p>
+                    </div>
+                    <div class="space-y-2 col-span-full">
+                        <label class="text-sm font-semibold text-gray-700">Address:</label>
+                        <p class="text-gray-900">${currentUserData.address || 'N/A'}</p>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function showAllAnnouncements() {
+            const modal = document.getElementById('announcements-modal');
+            const content = document.getElementById('announcements-content');
+            const announcements = loadData(localStorageKeys.announcements, []);
+            
+            if (announcements.length === 0) {
+                content.innerHTML = '<p class="text-gray-500 text-center py-8">No announcements posted yet.</p>';
+            } else {
+                content.innerHTML = announcements.map(announcement => `
+                    <div class="bg-gray-50 p-4 rounded-lg border">
+                        <h4 class="font-semibold text-gray-900 mb-2">${announcement.title || 'Announcement'}</h4>
+                        <p class="text-gray-700 mb-2">${announcement.content}</p>
+                        <p class="text-xs text-gray-500">${announcement.date || 'Date not specified'}</p>
+                    </div>
+                `).join('');
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function showAttendanceModal() {
+            const modal = document.getElementById('attendance-modal');
+            const content = document.getElementById('attendance-content');
+            const allAttendance = loadData(localStorageKeys.attendance, {});
+            const studentAttendance = allAttendance[currentUserData.rollNo] || {};
+            
+            let contentHTML = '';
+            
+            SUBJECTS.forEach(subject => {
+                const subjectAttendance = studentAttendance[subject] || [];
+                const totalClasses = subjectAttendance.length;
+                const attendedClasses = subjectAttendance.filter(a => a.status === 'Present').length;
+                const percentage = totalClasses > 0 ? ((attendedClasses / totalClasses) * 100).toFixed(1) : 0;
+                
+                contentHTML += `
+                    <div class="bg-gray-50 p-4 rounded-lg border mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-semibold text-gray-900">${subject}</h4>
+                            <span class="text-sm font-bold text-green-600">${percentage}%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3">Present: ${attendedClasses}/${totalClasses} classes</p>
+                        ${subjectAttendance.length > 0 ? `
+                            <div class="max-h-32 overflow-y-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="text-left p-2">Date</th>
+                                            <th class="text-left p-2">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${subjectAttendance.map(record => `
+                                            <tr class="border-b">
+                                                <td class="p-2">${record.date}</td>
+                                                <td class="p-2">
+                                                    <span class="px-2 py-1 rounded text-xs ${record.status === 'Present' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${record.status}</span>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ` : '<p class="text-xs text-gray-500">No attendance records yet</p>'}
+                    </div>
+                `;
+            });
+            
+            if (!contentHTML) {
+                contentHTML = '<p class="text-gray-500 text-center py-8">No attendance data recorded yet.</p>';
+            }
+            
+            content.innerHTML = contentHTML;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function showMarksModal() {
+            const modal = document.getElementById('marks-modal');
+            const content = document.getElementById('marks-content');
+            const allMarks = loadData(localStorageKeys.marks, {});
+            const studentMarks = allMarks[currentUserData.rollNo] || {};
+            
+            let contentHTML = '';
+            let totalMarks = 0;
+            let subjectCount = 0;
+            
+            SUBJECTS.forEach(subject => {
+                const marks = studentMarks[subject];
+                if (marks !== undefined) {
+                    totalMarks += marks;
+                    subjectCount++;
+                    
+                    let grade = 'F';
+                    if (marks >= 90) grade = 'A+';
+                    else if (marks >= 80) grade = 'A';
+                    else if (marks >= 70) grade = 'B+';
+                    else if (marks >= 60) grade = 'B';
+                    else if (marks >= 50) grade = 'C';
+                    else if (marks >= 40) grade = 'D';
+                    
+                    contentHTML += `
+                        <div class="bg-gray-50 p-4 rounded-lg border flex justify-between items-center">
+                            <div>
+                                <h4 class="font-semibold text-gray-900">${subject}</h4>
+                                <p class="text-sm text-gray-600">
+                                    ${subject === 'EDC' ? 'Electronic Device & Circuits' :
+                                      subject === 'DLD' ? 'Digital Logic Design' :
+                                      subject === 'UHV' ? 'Universal Human Values' :
+                                      subject === 'SS' ? 'Signals & Systems' :
+                                      subject === 'PVC' ? 'Programming in C' : subject}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-purple-600">${marks}</div>
+                                <div class="text-sm text-gray-500">Grade: ${grade}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (subjectCount > 0) {
+                const average = (totalMarks / subjectCount).toFixed(1);
+                contentHTML = `
+                    <div class="bg-blue-50 p-4 rounded-lg border mb-4">
+                        <div class="text-center">
+                            <h4 class="font-semibold text-gray-900 mb-2">Overall Performance</h4>
+                            <div class="text-3xl font-bold text-blue-600">${average}</div>
+                            <div class="text-sm text-gray-600">Average Score</div>
+                        </div>
+                    </div>
+                ` + contentHTML;
+            } else {
+                contentHTML = '<p class="text-gray-500 text-center py-8">No marks recorded yet.</p>';
+            }
+            
+            content.innerHTML = contentHTML;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function showAssignmentsModal() {
+            const modal = document.getElementById('assignments-modal');
+            const content = document.getElementById('assignments-content');
+            const assignments = loadData(localStorageKeys.assignments, []);
+            const branchAssignments = assignments.filter(a => a.branch === currentUserData.branch);
+            
+            if (branchAssignments.length === 0) {
+                content.innerHTML = '<p class="text-gray-500 text-center py-8">No assignments posted yet.</p>';
+            } else {
+                content.innerHTML = branchAssignments.map(assignment => `
+                    <div class="bg-gray-50 p-4 rounded-lg border">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-semibold text-gray-900">${assignment.title}</h4>
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${assignment.subject || 'General'}</span>
+                        </div>
+                        <p class="text-gray-700 mb-3">${assignment.description}</p>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500">Created: ${assignment.createdAt || 'Date not specified'}</span>
+                            <span class="text-red-600 font-semibold">Due: ${assignment.dueDate}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function showSyllabusModal() {
+            const modal = document.getElementById('syllabus-modal');
+            const content = document.getElementById('syllabus-content');
+            
+            const syllabusData = {
+                'EDC': {
+                    name: 'Electronic Device & Circuits',
+                    topics: ['Diode Circuits', 'Transistor Biasing', 'Amplifiers', 'Feedback Systems', 'Oscillators']
+                },
+                'DLD': {
+                    name: 'Digital Logic Design',
+                    topics: ['Boolean Algebra', 'Logic Gates', 'Combinational Circuits', 'Sequential Circuits', 'Memory Units']
+                },
+                'UHV': {
+                    name: 'Universal Human Values',
+                    topics: ['Human Values', 'Ethics', 'Character Building', 'Personality Development', 'Social Responsibility']
+                },
+                'SS': {
+                    name: 'Signals & Systems',
+                    topics: ['Signal Analysis', 'System Properties', 'Fourier Transform', 'Laplace Transform', 'Z-Transform']
+                },
+                'PVC': {
+                    name: 'Programming in C',
+                    topics: ['C Fundamentals', 'Control Structures', 'Functions', 'Arrays', 'Pointers', 'File Operations']
+                }
+            };
+            
+            let contentHTML = '';
+            SUBJECTS.forEach(subject => {
+                const syllabus = syllabusData[subject];
+                contentHTML += `
+                    <div class="bg-gray-50 p-4 rounded-lg border mb-4">
+                        <h4 class="font-semibold text-gray-900 mb-3">${subject} - ${syllabus.name}</h4>
+                        <ul class="space-y-1">
+                            ${syllabus.topics.map(topic => `
+                                <li class="text-sm text-gray-700 flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                    ${topic}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+            
+            content.innerHTML = contentHTML;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Teacher Dashboard Functions
+        function renderTeacherDashboard() {
+            document.getElementById('teacher-name-display').textContent = currentUserData.name;
+            setupTeacherForms();
+        }
+
+        function setupTeacherForms() {
+            // Announcement Form
+            document.getElementById('announcement-form').onsubmit = function(e) {
+                e.preventDefault();
+                const content = e.target['announcement-text'].value;
+                const announcements = loadData(localStorageKeys.announcements, []);
+                announcements.unshift({ 
+                    title: 'New Announcement', 
+                    content, 
+                    date: new Date().toLocaleDateString()
+                });
+                saveData(localStorageKeys.announcements, announcements);
+                e.target.reset();
+                showAlert('Success', 'Announcement posted successfully!');
+            };
+
+            // Marks Form
+            document.getElementById('marks-form').onsubmit = function(e) {
+                e.preventDefault();
+                const rollNo = e.target['marks-roll-no'].value;
+                const subject = e.target['marks-subject'].value;
+                const score = parseInt(e.target['marks-score'].value);
+                
+                if (!subject) {
+                    showAlert('Error', 'Please select a subject.');
+                    return;
+                }
+                
+                const found = ALL_STUDENTS.find(s => s.rollNo === rollNo);
+                if (!found) { 
+                    showAlert('Error', 'Student not found.'); 
+                    return; 
+                }
+                
+                const allMarks = loadData(localStorageKeys.marks, {});
+                if (!allMarks[rollNo]) allMarks[rollNo] = {};
+                
+                allMarks[rollNo][subject] = score;
+                
+                saveData(localStorageKeys.marks, allMarks);
+                e.target.reset();
+                showAlert('Success', `${subject} marks updated for student ${rollNo}.`);
+            };
+
+            // Assignment Form
+            document.getElementById('assignment-form').onsubmit = function(e) {
+                e.preventDefault();
+                const title = e.target['assignment-title'].value;
+                const subject = e.target['assignment-subject'].value;
+                const description = e.target['assignment-description'].value;
+                const dueDate = e.target['assignment-due-date'].value;
+                
+                if (!subject) {
+                    showAlert('Error', 'Please select a subject.');
+                    return;
+                }
+                
+                const assignments = loadData(localStorageKeys.assignments, []);
+                assignments.push({ 
+                    title, 
+                    subject,
+                    description, 
+                    dueDate, 
+                    branch: teacher.branch,
+                    createdAt: new Date().toLocaleDateString()
+                });
+                saveData(localStorageKeys.assignments, assignments);
+                e.target.reset();
+                showAlert('Success', 'Assignment created successfully!');
+            };
+        }
+
+        // Attendance Page Functions
+        function openAttendancePage() {
+            hideAllSections();
+            attendancePage.classList.remove('hidden');
+            
+            const now = new Date();
+            const dateTime = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+            document.getElementById('attendance-date-time').textContent = dateTime;
+        }
+
+        function backToTeacherDashboard() {
+            hideAllSections();
+            teacherDashboardSection.classList.remove('hidden');
+            selectedSubject = '';
+            attendanceData = {};
+            document.getElementById('attendance-student-list').classList.add('hidden');
+        }
+
+        function loadStudentsForAttendance() {
+            selectedSubject = document.getElementById('attendance-subject-select').value;
+            if (!selectedSubject) {
+                showAlert('Error', 'Please select a subject first.');
+                return;
+            }
+            
+            const grid = document.getElementById('student-attendance-grid');
+            const currentDate = new Date().toLocaleDateString();
+            
+            // Initialize attendance data
+            attendanceData = {};
+            
+            grid.innerHTML = ALL_STUDENTS.map(student => {
+                attendanceData[student.rollNo] = 'Present'; // Default to present
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-900 text-sm">${student.name}</div>
+                            <div class="text-xs text-gray-500">${student.rollNo}</div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="markStudent('${student.rollNo}', 'Present')" 
+                                    id="present-${student.rollNo}"
+                                    class="px-3 py-1 text-xs rounded bg-green-500 text-white">
+                                Present
+                            </button>
+                            <button onclick="markStudent('${student.rollNo}', 'Absent')" 
+                                    id="absent-${student.rollNo}"
+                                    class="px-3 py-1 text-xs rounded bg-gray-300 text-gray-700">
+                                Absent
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('attendance-student-list').classList.remove('hidden');
+        }
+
+        function markStudent(rollNo, status) {
+            attendanceData[rollNo] = status;
+            
+            const presentBtn = document.getElementById(`present-${rollNo}`);
+            const absentBtn = document.getElementById(`absent-${rollNo}`);
+            
+            if (status === 'Present') {
+                presentBtn.className = 'px-3 py-1 text-xs rounded bg-green-500 text-white';
+                absentBtn.className = 'px-3 py-1 text-xs rounded bg-gray-300 text-gray-700';
+            } else {
+                presentBtn.className = 'px-3 py-1 text-xs rounded bg-gray-300 text-gray-700';
+                absentBtn.className = 'px-3 py-1 text-xs rounded bg-red-500 text-white';
+            }
+        }
+
+        function markAllPresent() {
+            ALL_STUDENTS.forEach(student => {
+                markStudent(student.rollNo, 'Present');
+            });
+        }
+
+        function markAllAbsent() {
+            ALL_STUDENTS.forEach(student => {
+                markStudent(student.rollNo, 'Absent');
+            });
+        }
+
+        function saveAttendance() {
+            if (!selectedSubject) {
+                showAlert('Error', 'No subject selected.');
+                return;
+            }
+            
+            const allAttendance = loadData(localStorageKeys.attendance, {});
+            const currentDate = new Date().toLocaleDateString();
+            
+            ALL_STUDENTS.forEach(student => {
+                const rollNo = student.rollNo;
+                if (!allAttendance[rollNo]) {
+                    allAttendance[rollNo] = {};
+                }
+                if (!allAttendance[rollNo][selectedSubject]) {
+                    allAttendance[rollNo][selectedSubject] = [];
+                }
+                
+                // Check if attendance for today already exists
+                const existingIndex = allAttendance[rollNo][selectedSubject].findIndex(
+                    record => record.date === currentDate
+                );
+                
+                const attendanceRecord = {
+                    date: currentDate,
+                    status: attendanceData[rollNo] || 'Present',
+                    subject: selectedSubject,
+                    time: new Date().toLocaleTimeString()
+                };
+                
+                if (existingIndex > -1) {
+                    allAttendance[rollNo][selectedSubject][existingIndex] = attendanceRecord;
+                } else {
+                    allAttendance[rollNo][selectedSubject].push(attendanceRecord);
+                }
+            });
+            
+            saveData(localStorageKeys.attendance, allAttendance);
+            showAlert('Success', `Attendance saved for ${selectedSubject} on ${currentDate}`);
+            
+            setTimeout(() => {
+                backToTeacherDashboard();
+            }, 2000);
+        }
+
+        // Chat functionality
+        document.getElementById('branch-chat-form').onsubmit = function(e) {
+            e.preventDefault();
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            if (message) {
+                const chatMessages = loadData(localStorageKeys.chat, []);
+                chatMessages.push({ 
+                    user: currentUserData.name, 
+                    message,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                saveData(localStorageKeys.chat, chatMessages);
+                chatInput.value = '';
+                renderChat();
+            }
+        };
+
+        // Initialize app
+        window.onload = function() {
+            showLogin();
+        };
+    
+
+        // ========================
+        // ADDED: Theme Management System
+        // ========================
+        let currentTheme = 'light';
+
+        function initializeTheme() {
+            currentTheme = localStorage.getItem('skucet-theme') || 'light';
+            applyTheme(currentTheme);
+            updateThemeButton();
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(currentTheme);
+            localStorage.setItem('skucet-theme', currentTheme);
+            updateThemeButton();
+            showNotification(`Switched to ${currentTheme} mode`, 'success');
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+        }
+
+        function updateThemeButton() {
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+
+            if (currentTheme === 'dark') {
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+
+        // ========================
+        // ADDED: Forgot Password System
+        // ========================
+        function showForgotPassword() {
+            const modal = document.getElementById('forgot-password-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => document.getElementById('reset-email').focus(), 100);
+        }
+
+        function hideForgotPassword() {
+            const modal = document.getElementById('forgot-password-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('forgot-password-form').reset();
+        }
+
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            const email = document.getElementById('reset-email').value;
+
+            if (!email) {
+                showNotification('Please enter your email address', 'error');
+                return;
+            }
+
+            showNotification('Password reset link sent to your email!', 'success');
+            hideForgotPassword();
+        }
+
+        // ========================
+        // ADDED: Enhanced Chatbot System
+        // ========================
+        let chatbotOpen = false;
+        let attachedFiles = [];
+
+        function toggleChatbot() {
+            const window = document.getElementById('chatbot-window');
+            const toggle = document.getElementById('chatbot-toggle');
+
+            chatbotOpen = !chatbotOpen;
+
+            if (chatbotOpen) {
+                window.style.display = 'flex';
+                toggle.innerHTML = '<i class="fas fa-times"></i>';
+                setTimeout(() => scrollChatToBottom(), 100);
+            } else {
+                window.style.display = 'none';
+                toggle.innerHTML = '<i class="fas fa-comment-dots"></i>';
+                hideFileUpload();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatbot-input');
+            const message = input.value.trim();
+
+            if (!message && attachedFiles.length === 0) return;
+
+            if (message) {
+                addChatMessage(message, 'user');
+            }
+
+            if (attachedFiles.length > 0) {
+                addFileMessages(attachedFiles);
+                attachedFiles = [];
+                clearFilePreview();
+            }
+
+            input.value = '';
+
+            setTimeout(() => {
+                const response = generateBotResponse(message);
+                addChatMessage(response, 'bot');
+            }, 800 + Math.random() * 800);
+        }
+
+        function addChatMessage(message, sender, isFile = false) {
+            const container = document.getElementById('chatbot-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            if (isFile) {
+                messageDiv.innerHTML = `<div class="message-content">${message}</div>`;
+            } else {
+                messageDiv.innerHTML = `<div class="message-content"><p>${message}</p></div>`;
+            }
+
+            container.appendChild(messageDiv);
+            scrollChatToBottom();
+        }
+
+        function addFileMessages(files) {
+            files.forEach(file => {
+                const fileIcon = getFileIcon(file.type);
+                const fileSize = formatFileSize(file.size);
+
+                const fileMessage = `
+                    <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                        <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white">
+                            <i class="fas ${fileIcon}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-sm">${file.name}</div>
+                            <div class="text-xs text-gray-500">${fileSize}</div>
+                        </div>
+                        <i class="fas fa-download text-blue-500"></i>
+                    </div>
+                `;
+
+                addChatMessage(fileMessage, 'user', true);
+            });
+        }
+
+        function generateBotResponse(message) {
+            const msg = message.toLowerCase();
+
+            if (msg.includes('attendance')) {
+                return `📊 Your current attendance is 85%. You need at least 75% to be eligible for exams.\n\n📅 Recent attendance:\n• Digital Electronics: 90%\n• Microprocessors: 82%\n• Communication Systems: 88%`;
+            }
+
+            if (msg.includes('grade') || msg.includes('marks') || msg.includes('cgpa')) {
+                return `🎓 Your academic performance:\n\n📈 Current CGPA: 8.5\n🏆 Semester ranking: 12/66\n\n📚 Recent grades:\n• Digital Electronics: A\n• Microprocessors: B+\n• Communication Systems: A-`;
+            }
+
+            if (msg.includes('assignment') || msg.includes('homework')) {
+                return `📝 You have 3 pending assignments:\n\n🔴 Due Tomorrow:\n• Digital Logic Design Lab Report\n\n🟡 Due This Week:\n• Microprocessor Programming Project\n• Communication Theory Assignment`;
+            }
+
+            if (msg.includes('schedule') || msg.includes('timetable') || msg.includes('today')) {
+                return `📅 Today's Schedule:\n\n🕘 9:00 AM - Digital Electronics (Room 201)\n🕙 11:00 AM - Microprocessors Lab (Lab 3)\n🕐 2:00 PM - Communication Systems (Room 105)\n🕒 4:00 PM - Project Work`;
+            }
+
+            if (msg.includes('fee') || msg.includes('payment')) {
+                return `💰 Fee Information:\n\n✅ Current semester: Paid\n📅 Next installment: Dec 15, 2025\n💵 Amount due: ₹45,000\n\n📄 You can download receipts from finance section.`;
+            }
+
+            if (msg.includes('file') || msg.includes('share') || msg.includes('upload')) {
+                return `📎 File Sharing Guide:\n\n✨ Supported formats:\n• 📄 Documents (PDF, DOC, TXT)\n• 🖼️ Images (JPG, PNG, GIF)\n• 🎥 Videos (MP4, MOV, AVI)\n\n💡 Tips:\n• Drag & drop files directly\n• Click 📎 to browse files\n• Max size: 10MB per file`;
+            }
+
+            return `🤔 I'd be happy to help! Try asking about:\n\n• "Show my attendance"\n• "What's my schedule today?"\n• "How are my grades?"\n• "When is my next fee due?"\n• "Share a file"\n\n💬 Just type what you need!`;
+        }
+
+        function insertQuickResponse(text) {
+            document.getElementById('chatbot-input').value = text;
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function scrollChatToBottom() {
+            const container = document.getElementById('chatbot-messages');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // ========================
+        // ADDED: File Sharing System
+        // ========================
+        function toggleFileUpload() {
+            const uploadArea = document.getElementById('file-upload-area');
+            const isHidden = uploadArea.classList.contains('hidden');
+
+            if (isHidden) {
+                uploadArea.classList.remove('hidden');
+                document.getElementById('file-input').click();
+            } else {
+                hideFileUpload();
+            }
+        }
+
+        function hideFileUpload() {
+            document.getElementById('file-upload-area').classList.add('hidden');
+        }
+
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            processFiles(files);
+            hideFileUpload();
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.target.closest('.file-upload-area').classList.remove('dragover');
+
+            const files = Array.from(event.dataTransfer.files);
+            processFiles(files);
+            hideFileUpload();
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.target.closest('.file-upload-area').classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.target.closest('.file-upload-area').classList.remove('dragover');
+        }
+
+        function processFiles(files) {
+            const validFiles = files.filter(file => {
+                if (file.size > 10 * 1024 * 1024) {
+                    showNotification(`File "${file.name}" is too large. Max: 10MB`, 'error');
+                    return false;
+                }
+                return true;
+            });
+
+            attachedFiles = [...attachedFiles, ...validFiles];
+            updateFilePreview();
+        }
+
+        function updateFilePreview() {
+            const container = document.getElementById('file-previews');
+            container.innerHTML = '';
+
+            attachedFiles.forEach((file, index) => {
+                const preview = document.createElement('div');
+                preview.className = 'file-preview';
+                preview.innerHTML = `
+                    <div class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white text-sm">
+                        <i class="fas ${getFileIcon(file.type)}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-sm">${file.name}</div>
+                        <div class="text-xs" style="color: var(--theme-text-secondary, #64748b);">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(preview);
+            });
+        }
+
+        function removeFile(index) {
+            attachedFiles.splice(index, 1);
+            updateFilePreview();
+        }
+
+        function clearFilePreview() {
+            document.getElementById('file-previews').innerHTML = '';
+            document.getElementById('file-input').value = '';
+        }
+
+        function getFileIcon(mimeType) {
+            if (mimeType.startsWith('image/')) return 'fa-image';
+            if (mimeType.startsWith('video/')) return 'fa-video';
+            if (mimeType.includes('pdf')) return 'fa-file-pdf';
+            if (mimeType.includes('word') || mimeType.includes('document')) return 'fa-file-word';
+            if (mimeType.includes('text')) return 'fa-file-alt';
+            return 'fa-file';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // ========================
+        // ADDED: Notification System
+        // ========================
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform translate-x-full transition-transform duration-300';
+
+            const colors = {
+                success: 'bg-green-100 text-green-800 border border-green-200',
+                error: 'bg-red-100 text-red-800 border border-red-200',
+                info: 'bg-blue-100 text-blue-800 border border-blue-200'
+            };
+
+            notification.className += ' ' + colors[type];
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span class="flex-1 text-sm font-medium">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="hover:opacity-70">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // ========================
+        // ADDED: Initialization
+        // ========================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            initializeTheme();
+
+            // Mobile responsiveness
+            function handleMobileResize() {
+                const chatbot = document.getElementById('chatbot-window');
+                if (window.innerWidth <= 768) {
+                    chatbot.style.width = 'calc(100vw - 2rem)';
+                    chatbot.style.right = '-0.5rem';
+                } else {
+                    chatbot.style.width = '380px';
+                    chatbot.style.right = '0';
+                }
+            }
+
+            handleMobileResize();
+            window.addEventListener('resize', handleMobileResize);
+
+            console.log('✅ SKUCET Portal Enhanced Features Ready!');
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            const forgotModal = document.getElementById('forgot-password-modal');
+            if (event.target === forgotModal) {
+                hideForgotPassword();
+            }
+        });</script>
+
+    <!-- ADDED: Enhanced Chatbot with File Sharing -->
+    <div class="chatbot-container">
+        <div id="chatbot-window" class="chatbot-window">
+            <!-- Header -->
+            <div class="chatbot-header">
+                <div>
+                    <h4 class="font-semibold text-lg">SKUCET Assistant</h4>
+                    <p class="text-sm opacity-90">AI-powered support</p>
+                </div>
+                <button onclick="toggleChatbot()" class="hover:bg-white hover:bg-opacity-20 p-2 rounded-full transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="chatbot-messages" class="chatbot-messages">
+                <div class="message bot">
+                    <div class="message-content">
+                        <p>Hello! I'm your SKUCET AI Assistant. 🎓</p>
+                        <p>I can help you with academics, schedules, grades, and file sharing!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Upload Area -->
+            <div id="file-upload-area" class="file-upload-area hidden" 
+                 ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <i class="fas fa-cloud-upload-alt text-2xl mb-2" style="color: var(--theme-text-secondary, #64748b);"></i>
+                <p style="color: var(--theme-text-secondary, #64748b);" class="text-sm">Drag files here or click to select</p>
+                <input type="file" id="file-input" multiple class="hidden" onchange="handleFileSelect(event)" 
+                       accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi">
+            </div>
+
+            <!-- File Previews -->
+            <div id="file-previews" class="px-4"></div>
+
+            <!-- Input Area -->
+            <div class="chatbot-input-area">
+                <div class="flex gap-2 mb-3">
+                    <button onclick="toggleFileUpload()" class="p-2 rounded-lg transition-colors" 
+                            style="background: var(--theme-border, #e2e8f0); color: var(--theme-text-primary, #1e293b);"
+                            title="Attach Files">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <button onclick="insertQuickResponse('📊 Show my grades')" 
+                            class="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition-colors">
+                        Grades
+                    </button>
+                    <button onclick="insertQuickResponse('📅 My schedule today')" 
+                            class="px-3 py-1 text-xs bg-green-100 text-green-800 rounded-full hover:bg-green-200 transition-colors">
+                        Schedule
+                    </button>
+                </div>
+
+                <div class="flex gap-2">
+                    <input type="text" id="chatbot-input" placeholder="Type your message..." 
+                           class="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                           style="background: var(--theme-bg-secondary, #ffffff); border-color: var(--theme-border, #e2e8f0); color: var(--theme-text-primary, #1e293b);"
+                           onkeypress="handleChatKeyPress(event)">
+                    <button onclick="sendMessage()" class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <button id="chatbot-toggle" class="chatbot-toggle" onclick="toggleChatbot()" title="Open Assistant">
+            <i class="fas fa-comment-dots"></i>
+        </button>
+    </div>
+
+</body>
+</html>
